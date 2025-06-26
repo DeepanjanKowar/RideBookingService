@@ -8,7 +8,7 @@ fun main() {
     dispatcher.registerDriver(Dispatcher.Driver("d3", 12.9640, 77.6400, "Sedan", 4.2))
 
     val request = Dispatcher.RideRequest(12.9611, 77.6387, "Sedan")
-    val driver = dispatcher.dispatch(request)
+    val driver = dispatcher.dispatchMulticast(request)
 
-    println("Selected driver: ${driver?.id ?: "none"}")
+    println("Selected driver via multicast: ${driver?.id ?: "none"}")
 }

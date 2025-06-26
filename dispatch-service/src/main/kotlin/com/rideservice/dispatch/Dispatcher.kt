@@ -6,6 +6,9 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.random.Random
+import kotlin.concurrent.thread
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Simple dispatcher that selects the best driver for a ride request.
@@ -56,6 +59,72 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
             val dist = distanceKm(driver, request.pickupLat, request.pickupLng)
             alpha * eta + beta * dist - gamma * driver.rating
         }
+    }
+
+    /**
+     * Attempts to dispatch a ride using a multicast strategy.
+     *
+     * The request is offered to the top [maxCandidates] drivers by ETA and each
+     * driver randomly accepts or rejects within [timeoutMs]. The first driver to
+     * accept is returned.
+     */
+    fun dispatchMulticast(
+        request: RideRequest,
+        maxCandidates: Int = 3,
+        timeoutMs: Long = 3000
+    ): Driver? {
+        val nearbyIds = locationIndex.getDriversNear(request.pickupLat, request.pickupLng)
+        val sorted = nearbyIds.mapNotNull { drivers[it] }
+            .filter { it.category.equals(request.category, ignoreCase = true) }
+            .map { it to estimateEtaMinutes(it, request.pickupLat, request.pickupLng) }
+            .filter { it.second < 5.0 }
+            .sortedBy { it.second }
+            .take(maxCandidates)
+
+        if (sorted.isEmpty()) {
+            return null
+        }
+
+        val lock = ReentrantLock()
+        var accepted: Driver? = null
+        val threads = sorted.map { (driver, _) ->
+            thread(start = true) {
+                // Random delay simulating driver's response time
+                val delay = Random.nextLong(timeoutMs)
+                Thread.sleep(delay)
+
+                // Check if someone already accepted
+                lock.lock()
+                try {
+                    if (accepted != null) return@thread
+                } finally {
+                    lock.unlock()
+                }
+
+                if (Random.nextBoolean()) {
+                    lock.lock()
+                    try {
+                        if (accepted == null) {
+                            accepted = driver
+                        }
+                    } finally {
+                        lock.unlock()
+                    }
+                }
+            }
+        }
+
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            lock.lock()
+            val done = accepted != null
+            lock.unlock()
+            if (done) break
+            Thread.sleep(50)
+        }
+
+        threads.forEach { it.join(10) }
+        return accepted
     }
 
     /**
