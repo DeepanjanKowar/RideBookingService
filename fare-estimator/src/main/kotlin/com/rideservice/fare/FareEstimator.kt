@@ -3,6 +3,7 @@ package com.rideservice.fare
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlin.math.ceil
 
 /**
  * Provides fare estimation for different ride categories using a configurable rate card.
@@ -50,7 +51,7 @@ class FareEstimator(
 
         val fare = (rate.base + (distanceInKm * rate.perKm) + (durationInMinutes * rate.perMin)) * multiplier
         println("Calculated fare amount: ${'$'}fare")
-        return fare
+        return ceil(fare)
     }
 }
 
