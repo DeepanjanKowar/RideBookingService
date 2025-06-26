@@ -8,6 +8,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 import kotlin.concurrent.thread
+import kotlin.concurrent.withLock
 import java.util.concurrent.locks.ReentrantLock
 
 /**
@@ -32,12 +33,35 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
 
     private val drivers = mutableMapOf<String, Driver>()
 
+    // Maps H3 index to number of active ride requests and available drivers
+    private val requestCounts = mutableMapOf<Long, Int>()
+    private val driverCounts = mutableMapOf<Long, Int>()
+
+    // Adaptive batching parameters
+    private var batchIntervalMs: Long = 5000
+    private var searchRadius: Int = 1
+    private val statsLock = ReentrantLock()
+
+    init {
+        thread(isDaemon = true) {
+            while (true) {
+                runAdaptiveBatch()
+                val delay = statsLock.withLock { batchIntervalMs }
+                Thread.sleep(delay)
+            }
+        }
+    }
+
     /**
      * Registers a driver in the index with dummy information.
      */
     fun registerDriver(driver: Driver) {
         drivers[driver.id] = driver
         locationIndex.updateDriverLocation(driver.id, driver.lat, driver.lng)
+        val idx = locationIndex.latLngToIndex(driver.lat, driver.lng)
+        statsLock.withLock {
+            driverCounts[idx] = (driverCounts[idx] ?: 0) + 1
+        }
     }
 
     /**
@@ -45,7 +69,7 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
      * satisfies the constraints.
      */
     fun dispatch(request: RideRequest): Driver? {
-        val nearbyIds = locationIndex.getDriversNear(request.pickupLat, request.pickupLng)
+        val nearbyIds = locationIndex.getDriversNear(request.pickupLat, request.pickupLng, searchRadius)
         val candidates = nearbyIds.mapNotNull { drivers[it] }
             .filter { it.category.equals(request.category, ignoreCase = true) }
             .filter { estimateEtaMinutes(it, request.pickupLat, request.pickupLng) < 5.0 }
@@ -73,7 +97,11 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
         maxCandidates: Int = 3,
         timeoutMs: Long = 3000
     ): Driver? {
-        val nearbyIds = locationIndex.getDriversNear(request.pickupLat, request.pickupLng)
+        val reqIdx = locationIndex.latLngToIndex(request.pickupLat, request.pickupLng)
+        statsLock.withLock {
+            requestCounts[reqIdx] = (requestCounts[reqIdx] ?: 0) + 1
+        }
+        val nearbyIds = locationIndex.getDriversNear(request.pickupLat, request.pickupLng, searchRadius)
         val sorted = nearbyIds.mapNotNull { drivers[it] }
             .filter { it.category.equals(request.category, ignoreCase = true) }
             .map { it to estimateEtaMinutes(it, request.pickupLat, request.pickupLng) }
@@ -124,6 +152,12 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
         }
 
         threads.forEach { it.join(10) }
+        accepted?.let { acc ->
+            val dIdx = locationIndex.latLngToIndex(acc.lat, acc.lng)
+            statsLock.withLock {
+                driverCounts[dIdx] = (driverCounts[dIdx] ?: 1) - 1
+            }
+        }
         return accepted
     }
 
@@ -147,5 +181,35 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
         val a = sin(dLat / 2).pow(2.0) + cos(lat1) * cos(lat2) * sin(dLng / 2).pow(2.0)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return R * c
+    }
+
+    /**
+     * Runs periodically to adapt batch interval and search radius based on
+     * demand/supply ratios observed in each H3 cell.
+     */
+    private fun runAdaptiveBatch() {
+        statsLock.withLock {
+            val cells = requestCounts.keys + driverCounts.keys
+            for (cell in cells) {
+                val demand = requestCounts[cell] ?: 0
+                val supply = driverCounts[cell] ?: 0
+                val ratio = if (supply == 0) Double.POSITIVE_INFINITY else demand.toDouble() / supply
+
+                when {
+                    ratio > 1.0 -> {
+                        batchIntervalMs = 3000L
+                        searchRadius = minOf(3, searchRadius + 1)
+                    }
+                    ratio < 0.5 -> {
+                        batchIntervalMs = 7000L
+                        searchRadius = maxOf(1, searchRadius - 1)
+                    }
+                    else -> {
+                        batchIntervalMs = 5000L
+                    }
+                }
+            }
+            requestCounts.clear()
+        }
     }
 }
