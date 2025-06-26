@@ -12,7 +12,9 @@ import kotlin.math.pow
  * modules in this repository.
  */
 fun main() {
-    val locationIndex = DriverLocationIndex()
+    // Use a coarser resolution to cover a wider area so that our random drivers
+    // fall within the same search cells as the ride request
+    val locationIndex = DriverLocationIndex(resolution = 8)
     val dispatcher = Dispatcher(locationIndex)
     val surgeEngine = SurgeEngine()
     val fareEstimator = FareEstimator(surgeEngine = surgeEngine)
@@ -50,7 +52,8 @@ fun main() {
     println("Fare estimated: %.2f".format(fare))
 
     // Nearby drivers
-    val nearby = locationIndex.getDriversNear(pickupLat, pickupLng)
+    // Use a larger search radius so the simulator consistently finds nearby drivers
+    val nearby = locationIndex.getDriversNear(pickupLat, pickupLng, kRing = 2)
     println("Nearby drivers found: ${nearby.joinToString()}")
 
     // Dispatch driver (set to true for multicast mode)

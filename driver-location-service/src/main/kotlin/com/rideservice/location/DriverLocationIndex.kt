@@ -5,14 +5,17 @@ import com.uber.h3core.H3Core
 /**
  * Indexes driver locations using Uber's H3 library.
  */
-class DriverLocationIndex(private val h3: H3Core = H3Core.newInstance()) {
+class DriverLocationIndex(
+    private val h3: H3Core = H3Core.newInstance(),
+    private val resolution: Int = 9
+) {
     private val indexToDrivers: MutableMap<Long, MutableSet<String>> = mutableMapOf()
     private val driverToIndex: MutableMap<String, Long> = mutableMapOf()
 
     /**
      * Maps latitude and longitude to an H3 index using resolution 9.
      */
-    fun latLngToIndex(lat: Double, lng: Double, resolution: Int = 9): Long =
+    fun latLngToIndex(lat: Double, lng: Double, resolution: Int = this.resolution): Long =
         h3.geoToH3(lat, lng, resolution)
 
     /**
