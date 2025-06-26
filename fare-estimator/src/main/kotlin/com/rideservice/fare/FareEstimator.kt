@@ -1,16 +1,15 @@
 package com.rideservice.fare
 
-/**
- * Provides fare estimation for different ride categories using a simple rate card.
- */
-class FareEstimator {
-    private data class Rate(val base: Double, val perKm: Double, val perMin: Double)
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
-    private val rateCard = mapOf(
-        "Go" to Rate(base = 50.0, perKm = 15.0, perMin = 2.0),
-        "Sedan" to Rate(base = 70.0, perKm = 18.0, perMin = 3.0),
-        "SUV" to Rate(base = 90.0, perKm = 22.0, perMin = 4.0)
-    )
+/**
+ * Provides fare estimation for different ride categories using a configurable rate card.
+ */
+class FareEstimator(private val rateCard: Map<String, Rate> = RateCard.rates) {
+    @Serializable
+    data class Rate(val base: Double, val perKm: Double, val perMin: Double)
 
     /**
      * Estimates the fare for a trip.
@@ -31,9 +30,21 @@ class FareEstimator {
         require(durationInMinutes >= 0) { "durationInMinutes must be non-negative" }
 
         val multiplier = if (surgeMultiplier > 0) surgeMultiplier else 1.0
-        val rate = rateCard[category] ?: throw IllegalArgumentException("Unknown category: $category")
+        val rate = rateCard[category]
+            ?: throw IllegalArgumentException("Rate card missing category: $category")
 
         return (rate.base + (distanceInKm * rate.perKm) + (durationInMinutes * rate.perMin)) * multiplier
+    }
+}
+
+/** Loads the rate card configuration from rates.json. */
+object RateCard {
+    val rates: Map<String, FareEstimator.Rate>
+
+    init {
+        val jsonText = RateCard::class.java.classLoader.getResource("rates.json")
+            ?.readText() ?: throw IllegalStateException("rates.json not found")
+        rates = Json.decodeFromString(jsonText)
     }
 }
 

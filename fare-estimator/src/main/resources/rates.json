@@ -1,0 +1,5 @@
+{
+  "Go": { "base": 50, "perKm": 15, "perMin": 2 },
+  "Sedan": { "base": 70, "perKm": 18, "perMin": 3 },
+  "SUV": { "base": 90, "perKm": 22, "perMin": 4 }
+}
