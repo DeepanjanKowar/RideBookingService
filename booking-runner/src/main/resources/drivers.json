@@ -1,5 +1,17 @@
 [
   {"id": "d1", "lat": 12.961, "lng": 77.638, "category": "Sedan"},
   {"id": "d2", "lat": 12.962, "lng": 77.639, "category": "Go"},
-  {"id": "d3", "lat": 12.963, "lng": 77.640, "category": "SUV"}
+  {"id": "d3", "lat": 12.963, "lng": 77.640, "category": "SUV"},
+  {"id": "d4", "lat": 12.965, "lng": 77.639, "category": "SUV"},
+  {"id": "d5", "lat": 12.966, "lng": 77.642, "category": "Go"},
+  {"id": "d6", "lat": 12.9675, "lng": 77.6405, "category": "Sedan"},
+  {"id": "d7", "lat": 12.9683, "lng": 77.6375, "category": "Go"},
+  {"id": "d8", "lat": 12.9695, "lng": 77.6382, "category": "SUV"},
+  {"id": "d9", "lat": 12.9700, "lng": 77.6412, "category": "Sedan"},
+  {"id": "d10", "lat": 12.9710, "lng": 77.6398, "category": "Go"},
+  {"id": "d11", "lat": 12.9725, "lng": 77.6401, "category": "SUV"},
+  {"id": "d12", "lat": 12.9735, "lng": 77.6425, "category": "Sedan"},
+  {"id": "d13", "lat": 12.974, "lng": 77.638, "category": "Go"},
+  {"id": "d14", "lat": 12.975, "lng": 77.6395, "category": "SUV"},
+  {"id": "d15", "lat": 12.976, "lng": 77.6415, "category": "Sedan"}
 ]
