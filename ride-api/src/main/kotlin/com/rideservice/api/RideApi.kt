@@ -16,7 +16,7 @@ import io.ktor.server.routing.post
 import kotlinx.serialization.Serializable
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.ktor.ext.inject
 
 @Serializable
 data class FareEstimateRequest(
@@ -53,7 +53,7 @@ fun Application.module() {
     routing {
         post("/fare/estimate") {
             val req = call.receive<FareEstimateRequest>()
-            val fareEstimator: FareEstimator by inject(FareEstimator::class.java)
+            val fareEstimator by inject<FareEstimator>()
             val distance = 10.0
             val duration = 20.0
             val fare = fareEstimator.estimateFare(
@@ -68,7 +68,7 @@ fun Application.module() {
 
         post("/ride/request") {
             val req = call.receive<RideRequestDto>()
-            val dispatcher: Dispatcher by inject(Dispatcher::class.java)
+            val dispatcher by inject<Dispatcher>()
             val driver = dispatcher.dispatch(
                 Dispatcher.RideRequest(req.pickupLat, req.pickupLng, req.category)
             )
