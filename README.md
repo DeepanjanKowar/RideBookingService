@@ -28,6 +28,13 @@ RideBookingService is a sample Kotlin project composed of several modules that t
    ```
    The server will run on `http://localhost:8080`.
 
+### IDE Setup
+When opening the project in IntelliJ IDEA, make sure to **import** it as a Gradle
+project. If the `build.gradle.kts` files show `Unresolved reference: plugins`, it
+usually means the Kotlin Gradle plugin has not been downloaded yet. Running a
+Gradle build once (e.g. `gradle build`) with internet access will allow Gradle
+to fetch the required plugin jars so the IDE can resolve the DSL properly.
+
 ## Sample Ride Request JSON
 ```json
 {

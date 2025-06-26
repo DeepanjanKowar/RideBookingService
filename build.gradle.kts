@@ -1,5 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.0.21"
+    // Use a stable Kotlin version so IDEs can resolve the Gradle plugin
+    kotlin("jvm") version "1.9.22"
 }
 
 allprojects {
