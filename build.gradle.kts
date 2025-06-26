@@ -10,9 +10,13 @@ allprojects {
 }
 
 subprojects {
-    dependencies {
-        testImplementation(kotlin("test"))
-        testImplementation("io.kotest:kotest-assertions-core:5.8.1")
+    // Add test dependencies only after the Kotlin plugin is applied so that
+    // the 'testImplementation' configuration exists for each subproject.
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        dependencies {
+            testImplementation(kotlin("test"))
+            testImplementation("io.kotest:kotest-assertions-core:5.8.1")
+        }
     }
 
     tasks.withType<Test> {
