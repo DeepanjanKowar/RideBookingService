@@ -34,4 +34,12 @@ class FareEstimatorTest {
         val expected = (10.0 + 1.0 * 2.0 + 0.0) * 5.0
         assertEquals(expected, fare, 0.0001)
     }
+
+    @Test
+    fun fractionalFareRoundsUp() {
+        val estimator = FareEstimator(rateCard, StubSurgeEngine(1.0))
+        val fare = estimator.estimateFare(5.5, 3.2, "Test")
+        val expected = 25.0
+        assertEquals(expected, fare, 0.0001)
+    }
 }
