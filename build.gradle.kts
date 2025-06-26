@@ -15,8 +15,8 @@ subprojects {
     // the 'testImplementation' configuration exists for each subproject.
     plugins.withId("org.jetbrains.kotlin.jvm") {
         dependencies {
-            testImplementation(kotlin("test"))
-            testImplementation("io.kotest:kotest-assertions-core:5.8.1")
+            add("testImplementation", kotlin("test"))
+            add("testImplementation", "io.kotest:kotest-assertions-core:5.8.1")
         }
     }
 
