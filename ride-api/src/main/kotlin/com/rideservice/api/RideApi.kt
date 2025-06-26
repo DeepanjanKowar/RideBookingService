@@ -58,6 +58,18 @@ fun Application.module() {
     dispatcher.registerDriver(Dispatcher.Driver("d1", 12.9611, 77.6387, "Sedan", 4.5))
     dispatcher.registerDriver(Dispatcher.Driver("d2", 12.9620, 77.6410, "Go", 4.8))
     dispatcher.registerDriver(Dispatcher.Driver("d3", 12.9640, 77.6400, "Sedan", 4.2))
+    dispatcher.registerDriver(Dispatcher.Driver("d4", 12.9650, 77.6390, "SUV", 4.6))
+    dispatcher.registerDriver(Dispatcher.Driver("d5", 12.9660, 77.6420, "Go", 4.3))
+    dispatcher.registerDriver(Dispatcher.Driver("d6", 12.9675, 77.6405, "Sedan", 4.9))
+    dispatcher.registerDriver(Dispatcher.Driver("d7", 12.9683, 77.6375, "Go", 4.1))
+    dispatcher.registerDriver(Dispatcher.Driver("d8", 12.9695, 77.6382, "SUV", 4.4))
+    dispatcher.registerDriver(Dispatcher.Driver("d9", 12.9700, 77.6412, "Sedan", 4.7))
+    dispatcher.registerDriver(Dispatcher.Driver("d10", 12.9710, 77.6398, "Go", 4.0))
+    dispatcher.registerDriver(Dispatcher.Driver("d11", 12.9725, 77.6401, "SUV", 4.5))
+    dispatcher.registerDriver(Dispatcher.Driver("d12", 12.9735, 77.6425, "Sedan", 4.6))
+    dispatcher.registerDriver(Dispatcher.Driver("d13", 12.9740, 77.6380, "Go", 4.8))
+    dispatcher.registerDriver(Dispatcher.Driver("d14", 12.9750, 77.6395, "SUV", 4.2))
+    dispatcher.registerDriver(Dispatcher.Driver("d15", 12.9760, 77.6415, "Sedan", 4.7))
 
     routing {
         post("/fare/estimate") {
