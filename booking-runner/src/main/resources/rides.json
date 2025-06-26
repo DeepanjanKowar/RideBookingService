@@ -1,0 +1,4 @@
+[
+  {"pickup_lat": 12.9615, "pickup_lng": 77.6385, "drop_lat": 12.972, "drop_lng": 77.650, "category": "Sedan"},
+  {"pickup_lat": 12.960, "pickup_lng": 77.637, "drop_lat": 12.965, "drop_lng": 77.645, "category": "Go"}
+]
