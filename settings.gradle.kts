@@ -6,4 +6,9 @@ pluginManagement {
 }
 
 rootProject.name = "RideBookingService"
-include("fare-estimator", "dispatch-service", "driver-location-service")
+include(
+    "fare-estimator",
+    "dispatch-service",
+    "driver-location-service",
+    "ride-api"
+)
