@@ -52,6 +52,13 @@ fun Application.module() {
 
     val app = this
 
+    // Register some sample drivers on startup so the dispatch endpoint can
+    // return a driver instead of 404 when the system is empty.
+    val dispatcher by app.inject<Dispatcher>()
+    dispatcher.registerDriver(Dispatcher.Driver("d1", 12.9611, 77.6387, "Sedan", 4.5))
+    dispatcher.registerDriver(Dispatcher.Driver("d2", 12.9620, 77.6410, "Go", 4.8))
+    dispatcher.registerDriver(Dispatcher.Driver("d3", 12.9640, 77.6400, "Sedan", 4.2))
+
     routing {
         post("/fare/estimate") {
             val req = call.receive<FareEstimateRequest>()
