@@ -10,5 +10,6 @@ include(
     "fare-estimator",
     "dispatch-service",
     "driver-location-service",
-    "ride-api"
+    "ride-api",
+    "booking-runner"
 )

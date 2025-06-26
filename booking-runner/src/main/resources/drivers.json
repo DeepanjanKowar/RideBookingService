@@ -1,0 +1,5 @@
+[
+  {"id": "d1", "lat": 12.961, "lng": 77.638, "category": "Sedan"},
+  {"id": "d2", "lat": 12.962, "lng": 77.639, "category": "Go"},
+  {"id": "d3", "lat": 12.963, "lng": 77.640, "category": "SUV"}
+]
