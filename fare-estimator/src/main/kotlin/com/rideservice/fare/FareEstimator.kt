@@ -7,7 +7,10 @@ import kotlinx.serialization.json.Json
 /**
  * Provides fare estimation for different ride categories using a configurable rate card.
  */
-class FareEstimator(private val rateCard: Map<String, Rate> = RateCard.rates) {
+class FareEstimator(
+    private val rateCard: Map<String, Rate> = RateCard.rates,
+    private val surgeEngine: SurgeEngine = SurgeEngine()
+) {
     @Serializable
     data class Rate(val base: Double, val perKm: Double, val perMin: Double)
 
@@ -24,12 +27,20 @@ class FareEstimator(private val rateCard: Map<String, Rate> = RateCard.rates) {
         distanceInKm: Double,
         durationInMinutes: Double,
         category: String,
-        surgeMultiplier: Double = 1.0
+        surgeMultiplier: Double = 1.0,
+        pickupLat: Double? = null,
+        pickupLng: Double? = null
     ): Double {
         require(distanceInKm >= 0) { "distanceInKm must be non-negative" }
         require(durationInMinutes >= 0) { "durationInMinutes must be non-negative" }
 
-        val multiplier = if (surgeMultiplier > 0) surgeMultiplier else 1.0
+        val baseMultiplier = if (surgeMultiplier > 0) surgeMultiplier else 1.0
+        val surgeFactor = if (pickupLat != null && pickupLng != null) {
+            surgeEngine.getSurgeMultiplier(pickupLat, pickupLng)
+        } else {
+            1.0
+        }
+        val multiplier = baseMultiplier * surgeFactor
         val rate = rateCard[category]
             ?: throw IllegalArgumentException("Rate card missing category: $category")
 

@@ -10,4 +10,5 @@ application {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("com.uber:h3:3.7.2")
 }
