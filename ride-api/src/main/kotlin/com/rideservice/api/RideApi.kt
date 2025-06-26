@@ -85,7 +85,7 @@ fun Application.module() {
                 Dispatcher.RideRequest(req.pickupLat, req.pickupLng, req.category)
             )
             if (driver != null) {
-                println("Matched driver ${'$'}{driver.id} for request")
+                println("Matched driver ${driver.id} for request")
                 call.respond(driver.toDto())
             } else {
                 println("No driver available for request")

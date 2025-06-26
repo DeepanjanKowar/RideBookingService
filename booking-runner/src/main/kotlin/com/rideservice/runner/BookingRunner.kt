@@ -57,7 +57,7 @@ fun main() {
         val driver = dispatcher.dispatch(request)
 
         if (driver != null) {
-            println("Matched driver ${'$'}{driver.id} for ride (${ride.pickup_lat},${ride.pickup_lng}) -> (${ride.drop_lat},${ride.drop_lng}) Fare: %.2f".format(fare))
+            println("Matched driver ${driver.id} for ride (${ride.pickup_lat},${ride.pickup_lng}) -> (${ride.drop_lat},${ride.drop_lng}) Fare: %.2f".format(fare))
         } else {
             println("No driver available for ride (${ride.pickup_lat},${ride.pickup_lng}) -> (${ride.drop_lat},${ride.drop_lng})")
         }
