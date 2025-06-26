@@ -15,7 +15,10 @@ import java.util.concurrent.locks.ReentrantLock
  * Simple dispatcher that selects the best driver for a ride request.
  * Uses dummy driver data and mocked ETA/distance calculations.
  */
-class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocationIndex()) {
+class Dispatcher(
+    private val locationIndex: DriverLocationIndex = DriverLocationIndex(),
+    private val random: Random = Random.Default
+) {
 
     data class Driver(
         val id: String,
@@ -118,7 +121,7 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
         val threads = sorted.map { (driver, _) ->
             thread(start = true) {
                 // Random delay simulating driver's response time
-                val delay = Random.nextLong(timeoutMs)
+                val delay = random.nextLong(timeoutMs)
                 Thread.sleep(delay)
 
                 // Check if someone already accepted
@@ -129,7 +132,7 @@ class Dispatcher(private val locationIndex: DriverLocationIndex = DriverLocation
                     lock.unlock()
                 }
 
-                if (Random.nextBoolean()) {
+                if (random.nextBoolean()) {
                     lock.lock()
                     try {
                         if (accepted == null) {
