@@ -23,9 +23,9 @@ data class RideInput(
 fun main() {
     val json = Json { ignoreUnknownKeys = true }
 
-    val driversText = BookingRunner::class.java.classLoader.getResource("drivers.json")?.readText()
+    val driversText = BookingRunnerKt::class.java.classLoader.getResource("drivers.json")?.readText()
         ?: error("drivers.json not found")
-    val ridesText = BookingRunner::class.java.classLoader.getResource("rides.json")?.readText()
+    val ridesText = BookingRunnerKt::class.java.classLoader.getResource("rides.json")?.readText()
         ?: error("rides.json not found")
 
     val drivers = json.decodeFromString<List<DriverInput>>(driversText)

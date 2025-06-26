@@ -8,5 +8,5 @@ application {
 }
 
 dependencies {
-    implementation("com.uber:h3:3.7.2")
+    api("com.uber:h3:3.7.2")
 }
