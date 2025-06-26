@@ -74,7 +74,7 @@ class Dispatcher(
     fun dispatch(request: RideRequest): Driver? {
         println("Dispatching request for pickup (${request.pickupLat}, ${request.pickupLng}) category=${request.category}")
         val nearbyIds = locationIndex.getDriversNear(request.pickupLat, request.pickupLng, searchRadius)
-        println("Found ${'$'}{nearbyIds.size} nearby drivers")
+        println("Found ${nearbyIds.size} nearby drivers")
         val candidates = nearbyIds.mapNotNull { drivers[it] }
             .filter { it.category.equals(request.category, ignoreCase = true) }
             .filter { estimateEtaMinutes(it, request.pickupLat, request.pickupLng) < 5.0 }
@@ -87,12 +87,12 @@ class Dispatcher(
             val eta = estimateEtaMinutes(driver, request.pickupLat, request.pickupLng)
             val dist = distanceKm(driver, request.pickupLat, request.pickupLng)
             val score = alpha * eta + beta * dist - gamma * driver.rating
-            println("Candidate ${'$'}{driver.id}: eta=${'$'}eta, dist=${'$'}dist, rating=${'$'}{driver.rating}, score=${'$'}score")
+            println("Candidate ${driver.id}: eta=$eta, dist=$dist, rating=${driver.rating}, score=$score")
             driver to score
         }
 
         val selected = scored.minByOrNull { it.second }?.first
-        println("Selected driver: ${'$'}{selected?.id ?: "none"}")
+        println("Selected driver: ${selected?.id ?: "none"}")
         return selected
     }
 
