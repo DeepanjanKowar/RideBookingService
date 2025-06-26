@@ -59,12 +59,18 @@ class Dispatcher(
      * Registers a driver in the index with dummy information.
      */
     fun registerDriver(driver: Driver) {
+        println(
+            "Registering driver ${driver.id} " +
+                "location=(${driver.lat}, ${driver.lng}) " +
+                "category=${driver.category} rating=${driver.rating}"
+        )
         drivers[driver.id] = driver
         locationIndex.updateDriverLocation(driver.id, driver.lat, driver.lng)
         val idx = locationIndex.latLngToIndex(driver.lat, driver.lng)
         statsLock.withLock {
             driverCounts[idx] = (driverCounts[idx] ?: 0) + 1
         }
+        println("Driver ${driver.id} registered in index $idx")
     }
 
     /**
