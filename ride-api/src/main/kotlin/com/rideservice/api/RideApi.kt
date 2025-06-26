@@ -50,10 +50,12 @@ fun Application.module() {
         )
     }
 
+    val app = this
+
     routing {
         post("/fare/estimate") {
             val req = call.receive<FareEstimateRequest>()
-            val fareEstimator by inject<FareEstimator>()
+            val fareEstimator by app.inject<FareEstimator>()
             val distance = 10.0
             val duration = 20.0
             val fare = fareEstimator.estimateFare(
@@ -68,7 +70,7 @@ fun Application.module() {
 
         post("/ride/request") {
             val req = call.receive<RideRequestDto>()
-            val dispatcher by inject<Dispatcher>()
+            val dispatcher by app.inject<Dispatcher>()
             val driver = dispatcher.dispatch(
                 Dispatcher.RideRequest(req.pickupLat, req.pickupLng, req.category)
             )
