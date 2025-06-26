@@ -9,4 +9,5 @@ application {
 
 dependencies {
     implementation(project(":driver-location-service"))
+    implementation(project(":fare-estimator"))
 }
