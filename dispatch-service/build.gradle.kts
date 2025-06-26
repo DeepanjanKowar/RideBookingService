@@ -7,4 +7,6 @@ application {
     mainClass.set("com.rideservice.dispatch.DispatchServiceKt")
 }
 
-dependencies {}
+dependencies {
+    implementation(project(":driver-location-service"))
+}
