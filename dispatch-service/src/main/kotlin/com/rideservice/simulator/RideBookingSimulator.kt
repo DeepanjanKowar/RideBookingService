@@ -3,6 +3,7 @@ package com.rideservice.simulator
 import com.rideservice.dispatch.Dispatcher
 import com.rideservice.location.DriverLocationIndex
 import com.rideservice.fare.FareEstimator
+import com.rideservice.fare.SurgeEngine
 import kotlin.random.Random
 
 /**
@@ -12,7 +13,8 @@ import kotlin.random.Random
 fun main() {
     val locationIndex = DriverLocationIndex()
     val dispatcher = Dispatcher(locationIndex)
-    val fareEstimator = FareEstimator()
+    val surgeEngine = SurgeEngine()
+    val fareEstimator = FareEstimator(surgeEngine = surgeEngine)
 
     // Generate mock drivers
     val categories = listOf("Go", "Sedan", "SUV")
@@ -37,7 +39,13 @@ fun main() {
     // Estimate fare
     val distanceKm = haversine(pickupLat, pickupLng, dropLat, dropLng)
     val durationMin = (distanceKm / 40.0) * 60.0
-    val fare = fareEstimator.estimateFare(distanceKm, durationMin, category)
+    val fare = fareEstimator.estimateFare(
+        distanceKm,
+        durationMin,
+        category,
+        pickupLat = pickupLat,
+        pickupLng = pickupLng
+    )
     println("Fare estimated: %.2f".format(fare))
 
     // Nearby drivers

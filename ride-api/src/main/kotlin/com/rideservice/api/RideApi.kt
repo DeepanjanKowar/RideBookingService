@@ -2,6 +2,7 @@ package com.rideservice.api
 
 import com.rideservice.dispatch.Dispatcher
 import com.rideservice.fare.FareEstimator
+import com.rideservice.fare.SurgeEngine
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -42,7 +43,8 @@ fun Application.module() {
     install(Koin) {
         modules(
             module {
-                single { FareEstimator() }
+                single { SurgeEngine() }
+                single { FareEstimator(surgeEngine = get()) }
                 single { Dispatcher() }
             }
         )
@@ -54,7 +56,13 @@ fun Application.module() {
             val fareEstimator: FareEstimator by inject(FareEstimator::class.java)
             val distance = 10.0
             val duration = 20.0
-            val fare = fareEstimator.estimateFare(distance, duration, req.category)
+            val fare = fareEstimator.estimateFare(
+                distance,
+                duration,
+                req.category,
+                pickupLat = req.pickupLat,
+                pickupLng = req.pickupLng
+            )
             call.respond(FareEstimateResponse(fare))
         }
 
