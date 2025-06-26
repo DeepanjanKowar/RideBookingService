@@ -7,4 +7,6 @@ application {
     mainClass.set("com.rideservice.location.DriverLocationServiceKt")
 }
 
-dependencies {}
+dependencies {
+    implementation("com.uber:h3:3.7.2")
+}
