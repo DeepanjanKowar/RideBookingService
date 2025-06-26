@@ -5,6 +5,7 @@ import com.rideservice.location.DriverLocationIndex
 import com.rideservice.fare.FareEstimator
 import com.rideservice.fare.SurgeEngine
 import kotlin.random.Random
+import kotlin.math.pow
 
 /**
  * Simple simulator that demonstrates the ride booking flow using the existing
