@@ -30,6 +30,7 @@ open class SurgeEngine(
         val supply = random.nextInt(1, 20)
         val factor = 1.0 + demand.toDouble() / supply.toDouble()
         surgeMap[cellId] = factor
+        println("Surge calculation for cell ${'$'}cellId -> demand=${'$'}demand, supply=${'$'}supply, factor=${'$'}factor")
         return factor
     }
 

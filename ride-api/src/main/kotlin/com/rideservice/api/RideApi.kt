@@ -62,6 +62,7 @@ fun Application.module() {
     routing {
         post("/fare/estimate") {
             val req = call.receive<FareEstimateRequest>()
+            println("Received fare estimate request: $req")
             val fareEstimator by app.inject<FareEstimator>()
             val distance = 10.0
             val duration = 20.0
@@ -72,18 +73,22 @@ fun Application.module() {
                 pickupLat = req.pickupLat,
                 pickupLng = req.pickupLng
             )
+            println("Calculated fare: %.2f".format(fare))
             call.respond(FareEstimateResponse(fare))
         }
 
         post("/ride/request") {
             val req = call.receive<RideRequestDto>()
+            println("Received ride request: $req")
             val dispatcher by app.inject<Dispatcher>()
             val driver = dispatcher.dispatch(
                 Dispatcher.RideRequest(req.pickupLat, req.pickupLng, req.category)
             )
             if (driver != null) {
+                println("Matched driver ${'$'}{driver.id} for request")
                 call.respond(driver.toDto())
             } else {
+                println("No driver available for request")
                 call.respond(HttpStatusCode.NotFound)
             }
         }

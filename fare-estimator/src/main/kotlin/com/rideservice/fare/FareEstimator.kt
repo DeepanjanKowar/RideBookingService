@@ -31,6 +31,7 @@ class FareEstimator(
         pickupLat: Double? = null,
         pickupLng: Double? = null
     ): Double {
+        println("Estimating fare: distance=${'$'}distanceInKm km, duration=${'$'}durationInMinutes min, category=${'$'}category")
         require(distanceInKm >= 0) { "distanceInKm must be non-negative" }
         require(durationInMinutes >= 0) { "durationInMinutes must be non-negative" }
 
@@ -44,7 +45,12 @@ class FareEstimator(
         val rate = rateCard[category]
             ?: throw IllegalArgumentException("Rate card missing category: $category")
 
-        return (rate.base + (distanceInKm * rate.perKm) + (durationInMinutes * rate.perMin)) * multiplier
+        println("Using rate card base=${'$'}{rate.base}, perKm=${'$'}{rate.perKm}, perMin=${'$'}{rate.perMin}")
+        println("Surge factor=${'$'}surgeFactor}, base multiplier=${'$'}baseMultiplier}, total multiplier=${'$'}multiplier")
+
+        val fare = (rate.base + (distanceInKm * rate.perKm) + (durationInMinutes * rate.perMin)) * multiplier
+        println("Calculated fare amount: ${'$'}fare")
+        return fare
     }
 }
 
