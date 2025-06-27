@@ -67,6 +67,7 @@ class Dispatcher(
         drivers[driver.id] = driver
         locationIndex.updateDriverLocation(driver.id, driver.lat, driver.lng)
         val idx = locationIndex.latLngToIndex(driver.lat, driver.lng)
+        // Track number of available drivers per H3 cell for adaptive batching
         statsLock.withLock {
             driverCounts[idx] = (driverCounts[idx] ?: 0) + 1
         }
@@ -81,6 +82,7 @@ class Dispatcher(
         println("Dispatching request for pickup (${request.pickupLat}, ${request.pickupLng}) category=${request.category}")
         val nearbyIds = locationIndex.getDriversNear(request.pickupLat, request.pickupLng, searchRadius)
         println("Found ${nearbyIds.size} nearby drivers")
+        // Only drivers matching the requested category and within an acceptable ETA are considered
         val candidates = nearbyIds.mapNotNull { drivers[it] }
             .filter { it.category.equals(request.category, ignoreCase = true) }
             .filter { estimateEtaMinutes(it, request.pickupLat, request.pickupLng) < 5.0 }
@@ -89,6 +91,8 @@ class Dispatcher(
         val beta = 2.0
         val gamma = 3.0
 
+        // Evaluate each candidate using a weighted score so lower ETA, shorter distance
+        // and higher rating result in a better score
         val scored = candidates.map { driver ->
             val eta = estimateEtaMinutes(driver, request.pickupLat, request.pickupLng)
             val dist = distanceKm(driver, request.pickupLat, request.pickupLng)
@@ -115,6 +119,7 @@ class Dispatcher(
         timeoutMs: Long = 3000
     ): Driver? {
         val reqIdx = locationIndex.latLngToIndex(request.pickupLat, request.pickupLng)
+        // Record demand for the cell so runAdaptiveBatch can adjust the system
         statsLock.withLock {
             requestCounts[reqIdx] = (requestCounts[reqIdx] ?: 0) + 1
         }
@@ -146,6 +151,7 @@ class Dispatcher(
                     lock.unlock()
                 }
 
+                // Randomly decide if the driver accepts the ride
                 if (random.nextBoolean()) {
                     lock.lock()
                     try {
@@ -171,6 +177,7 @@ class Dispatcher(
         threads.forEach { it.join(10) }
         accepted?.let { acc ->
             val dIdx = locationIndex.latLngToIndex(acc.lat, acc.lng)
+            // Driver that accepted is now busy, update supply counts
             statsLock.withLock {
                 driverCounts[dIdx] = (driverCounts[dIdx] ?: 1) - 1
             }
@@ -182,6 +189,7 @@ class Dispatcher(
      * Mocked ETA calculation based on distance and a constant speed of 40km/h.
      */
     private fun estimateEtaMinutes(driver: Driver, destLat: Double, destLng: Double): Double {
+        // Convert distance into an ETA using a fixed average speed of 40km/h
         val dist = distanceKm(driver, destLat, destLng)
         return (dist / 40.0) * 60.0
     }
@@ -195,6 +203,7 @@ class Dispatcher(
         val lat2 = Math.toRadians(destLat)
         val dLat = lat2 - lat1
         val dLng = Math.toRadians(destLng - driver.lng)
+        // Haversine formula
         val a = sin(dLat / 2).pow(2.0) + cos(lat1) * cos(lat2) * sin(dLng / 2).pow(2.0)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return R * c
@@ -213,10 +222,12 @@ class Dispatcher(
                 val ratio = if (supply == 0) Double.POSITIVE_INFINITY else demand.toDouble() / supply
 
                 when {
+                    // Demand exceeds supply, speed up batching and expand search
                     ratio > 1.0 -> {
                         batchIntervalMs = 3000L
                         searchRadius = minOf(3, searchRadius + 1)
                     }
+                    // System is idle, slow down batching and shrink search radius
                     ratio < 0.5 -> {
                         batchIntervalMs = 7000L
                         searchRadius = maxOf(1, searchRadius - 1)

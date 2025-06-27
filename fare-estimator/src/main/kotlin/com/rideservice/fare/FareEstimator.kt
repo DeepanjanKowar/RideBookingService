@@ -36,12 +36,18 @@ class FareEstimator(
         require(distanceInKm >= 0) { "distanceInKm must be non-negative" }
         require(durationInMinutes >= 0) { "durationInMinutes must be non-negative" }
 
+        // Provided multipliers less than or equal to zero are ignored
         val baseMultiplier = if (surgeMultiplier > 0) surgeMultiplier else 1.0
+
+        // When pickup location is known, consult the surge engine for that area
         val surgeFactor = if (pickupLat != null && pickupLng != null) {
             surgeEngine.getSurgeMultiplier(pickupLat, pickupLng)
         } else {
+            // No surge applied without a pickup position
             1.0
         }
+
+        // Total multiplier applied to the base fare calculation
         val multiplier = baseMultiplier * surgeFactor
         val rate = rateCard[category]
             ?: throw IllegalArgumentException("Rate card missing category: $category")
@@ -49,6 +55,7 @@ class FareEstimator(
         println("Using rate card base=${rate.base}, perKm=${rate.perKm}, perMin=${rate.perMin}")
         println("Surge factor=$surgeFactor}, base multiplier=$baseMultiplier}, total multiplier=$multiplier")
 
+        // Standard fare computation using distance and duration with the computed multiplier
         val fare = (rate.base + (distanceInKm * rate.perKm) + (durationInMinutes * rate.perMin)) * multiplier
         println("Calculated fare amount: $fare")
         return ceil(fare)

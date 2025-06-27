@@ -22,6 +22,7 @@ class DriverLocationIndex(
      * Updates the stored location for a driver.
      */
     fun updateDriverLocation(driverId: String, lat: Double, lng: Double) {
+        // Translate the new coordinates into the H3 grid index
         val newIndex = latLngToIndex(lat, lng)
         val oldIndex = driverToIndex.put(driverId, newIndex)
 
@@ -34,6 +35,7 @@ class DriverLocationIndex(
             }
         }
 
+        // Associate the driver with the new index
         indexToDrivers.computeIfAbsent(newIndex) { mutableSetOf() }.add(driverId)
     }
 
@@ -47,6 +49,7 @@ class DriverLocationIndex(
         val result = mutableSetOf<String>()
 
         for (idx in indexes) {
+            // Merge drivers for every neighbouring cell into the result set
             indexToDrivers[idx]?.let { result.addAll(it) }
         }
 
