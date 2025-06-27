@@ -5,8 +5,16 @@ import kotlin.test.assertEquals
 
 class FareEstimatorTest {
     private class StubSurgeEngine(private val factor: Double) : SurgeEngine() {
-        override fun getSurgeMultiplier(lat: Double, lng: Double, resolution: Int): Double = factor
-        override fun getSurgeMultiplier(cellId: Long): Double = factor
+        override fun getSurgeMultiplier(
+            pickupLat: Double,
+            pickupLng: Double,
+            dropLat: Double?,
+            dropLng: Double?,
+            category: String?,
+            resolution: Int
+        ): Double = factor
+
+        override fun getSurgeMultiplier(pickupCellId: Long, dropCellId: Long?, category: String?): Double = factor
     }
 
     private val rateCard = mapOf("Test" to FareEstimator.Rate(base = 10.0, perKm = 2.0, perMin = 1.0))

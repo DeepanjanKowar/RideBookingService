@@ -84,7 +84,9 @@ fun Application.module() {
                 duration,
                 req.category,
                 pickupLat = req.pickupLat,
-                pickupLng = req.pickupLng
+                pickupLng = req.pickupLng,
+                dropLat = req.dropLat,
+                dropLng = req.dropLng
             )
             println("Calculated fare: %.2f".format(fare))
             call.respond(FareEstimateResponse(fare))

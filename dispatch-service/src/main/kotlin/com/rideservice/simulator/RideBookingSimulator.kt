@@ -47,7 +47,9 @@ fun main() {
         durationMin,
         category,
         pickupLat = pickupLat,
-        pickupLng = pickupLng
+        pickupLng = pickupLng,
+        dropLat = dropLat,
+        dropLng = dropLng
     )
     println("Fare estimated: %.2f".format(fare))
 
