@@ -30,7 +30,9 @@ class FareEstimator(
         category: String,
         surgeMultiplier: Double = 1.0,
         pickupLat: Double? = null,
-        pickupLng: Double? = null
+        pickupLng: Double? = null,
+        dropLat: Double? = null,
+        dropLng: Double? = null
     ): Double {
         println("Estimating fare: distance=$distanceInKm km, duration=$durationInMinutes min, category=$category")
         require(distanceInKm >= 0) { "distanceInKm must be non-negative" }
@@ -41,7 +43,13 @@ class FareEstimator(
 
         // When pickup location is known, consult the surge engine for that area
         val surgeFactor = if (pickupLat != null && pickupLng != null) {
-            surgeEngine.getSurgeMultiplier(pickupLat, pickupLng)
+            surgeEngine.getSurgeMultiplier(
+                pickupLat,
+                pickupLng,
+                dropLat,
+                dropLng,
+                category
+            )
         } else {
             // No surge applied without a pickup position
             1.0

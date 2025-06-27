@@ -52,7 +52,9 @@ fun main() {
             duration,
             ride.category,
             pickupLat = ride.pickup_lat,
-            pickupLng = ride.pickup_lng
+            pickupLng = ride.pickup_lng,
+            dropLat = ride.drop_lat,
+            dropLng = ride.drop_lng
         )
 
         val request = Dispatcher.RideRequest(ride.pickup_lat, ride.pickup_lng, ride.category)
