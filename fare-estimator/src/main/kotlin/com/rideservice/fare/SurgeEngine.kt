@@ -19,6 +19,7 @@ open class SurgeEngine(
      */
     open fun getSurgeMultiplier(lat: Double, lng: Double, resolution: Int = 9): Double {
         val cellId = h3.geoToH3(lat, lng, resolution)
+        // Delegate to the cell based overload so surge state is consistent
         return getSurgeMultiplier(cellId)
     }
 
@@ -26,9 +27,12 @@ open class SurgeEngine(
      * Returns the surge multiplier for a specific H3 cell.
      */
     open fun getSurgeMultiplier(cellId: Long): Double {
+        // Randomly derive demand and supply to keep the example simple
         val demand = random.nextInt(0, 20)
         val supply = random.nextInt(1, 20)
+        // Surge multiplier grows as demand exceeds supply
         val factor = 1.0 + demand.toDouble() / supply.toDouble()
+        // Persist the last computed surge value so other components can inspect it
         surgeMap[cellId] = factor
         println("Surge calculation for cell $cellId -> demand=$demand, supply=$supply, factor=$factor")
         return factor

@@ -76,6 +76,7 @@ fun Application.module() {
             val req = call.receive<FareEstimateRequest>()
             println("Received fare estimate request: $req")
             val fareEstimator by app.inject<FareEstimator>()
+            // Distance and duration are fixed for demo purposes
             val distance = 10.0
             val duration = 20.0
             val fare = fareEstimator.estimateFare(
@@ -93,6 +94,7 @@ fun Application.module() {
             val req = call.receive<RideRequestDto>()
             println("Received ride request: $req")
             val dispatcher by app.inject<Dispatcher>()
+            // Delegate driver selection to the dispatcher
             val driver = dispatcher.dispatch(
                 Dispatcher.RideRequest(req.pickupLat, req.pickupLng, req.category)
             )
